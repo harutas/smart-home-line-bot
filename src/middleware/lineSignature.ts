@@ -1,6 +1,6 @@
-import { validateSignature, LINE_SIGNATURE_HTTP_HEADER_NAME } from '@line/bot-sdk';
+import type { HonoVariables } from '@/types/hono';
+import { LINE_SIGNATURE_HTTP_HEADER_NAME, validateSignature } from '@line/bot-sdk';
 import type { Context, Next } from 'hono';
-import type { HonoVariables } from '../types/hono';
 
 type HonoEnv = { Bindings: Env; Variables: HonoVariables };
 

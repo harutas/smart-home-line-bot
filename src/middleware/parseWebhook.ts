@@ -1,6 +1,6 @@
+import type { HonoVariables } from '@/types/hono';
+import type { LineWebhookBody } from '@/types/line';
 import type { Context, Next } from 'hono';
-import type { HonoVariables } from '../types/hono';
-import type { LineWebhookBody } from '../types/line';
 
 type HonoEnv = { Bindings: Env; Variables: HonoVariables };
 

@@ -1,5 +1,5 @@
+import webhook from '@/routes/webhook';
 import { Hono } from 'hono';
-import webhook from './routes/webhook';
 
 const app = new Hono<{ Bindings: Env }>();
 

@@ -1,5 +1,5 @@
+import { HonoVariables } from '@/types/hono';
 import type { Context, Next } from 'hono';
-import type { HonoVariables } from '../types/hono';
 
 type HonoEnv = { Bindings: Env; Variables: HonoVariables };
 

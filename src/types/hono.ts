@@ -1,4 +1,4 @@
-import type { LineEvent } from './line';
+import { LineEvent } from '@/types/line';
 
 export interface HonoVariables {
 	rawBody: string;
