@@ -46,11 +46,11 @@ async function setupRichMenu() {
 		areas: [
 			{
 				bounds: { x: 0, y: 0, width: 833, height: 843 },
-				action: { type: 'postback', label: 'ON', data: JSON.stringify({ action: 'turnOn' }) },
+				action: { type: 'postback', label: 'ON', data: JSON.stringify({ action: 'turnOn' }), displayText: '電気をつける' },
 			},
 			{
 				bounds: { x: 833, y: 0, width: 834, height: 843 },
-				action: { type: 'postback', label: 'OFF', data: JSON.stringify({ action: 'turnOff' }) },
+				action: { type: 'postback', label: 'OFF', data: JSON.stringify({ action: 'turnOff' }), displayText: '電気を消す' },
 			},
 			// {
 			// 	bounds: { x: 1667, y: 0, width: 833, height: 843 },
