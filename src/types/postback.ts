@@ -4,10 +4,16 @@ export const POSTBACK_ACTION = {
 	LIVING_ROOM_AC_COOL: 'LIVING_ROOM_AC_COOL',
 	LIVING_ROOM_AC_HEAT: 'LIVING_ROOM_AC_HEAT',
 	LIVING_ROOM_AC_STOP: 'LIVING_ROOM_AC_STOP',
+	LIVING_ROOM_AC_SELECT_MODE: 'LIVING_ROOM_AC_SELECT_MODE',
+	LIVING_ROOM_AC_SELECT_TEMP: 'LIVING_ROOM_AC_SELECT_TEMP',
+	LIVING_ROOM_AC_START: 'LIVING_ROOM_AC_START',
 } as const;
 
 export type PostbackAction = (typeof POSTBACK_ACTION)[keyof typeof POSTBACK_ACTION];
+export type AcMode = 'cool' | 'heat';
 
 export interface PostbackData {
 	action: PostbackAction;
+	mode?: AcMode;
+	temperature?: number;
 }
