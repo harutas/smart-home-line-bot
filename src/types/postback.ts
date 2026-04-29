@@ -1,6 +1,6 @@
 export const POSTBACK_ACTION = {
-	TURN_ON: 'turnOn',
-	TURN_OFF: 'turnOff',
+	BEDROOM_LIGHT_TURN_ON: 'BEDROOM_LIGHT_TURN_ON',
+	BEDROOM_LIGHT_TURN_OFF: 'BEDROOM_LIGHT_TURN_OFF',
 } as const;
 
 export type PostbackAction = (typeof POSTBACK_ACTION)[keyof typeof POSTBACK_ACTION];
