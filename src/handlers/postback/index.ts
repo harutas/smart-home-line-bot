@@ -1,4 +1,5 @@
 import { handleTurnOff, handleTurnOn } from '@/handlers/postback/bedroom/light';
+import { handleCool, handleHeat, handleStop } from '@/handlers/postback/living-room/ac';
 import type { LinePostbackEvent } from '@/types/line';
 import { POSTBACK_ACTION, type PostbackAction, type PostbackData } from '@/types/postback';
 import { messagingApi } from '@line/bot-sdk';
@@ -14,6 +15,9 @@ type PostbackHandler = (ctx: PostbackContext) => Promise<void>;
 const actionMap: Record<PostbackAction, PostbackHandler> = {
 	[POSTBACK_ACTION.BEDROOM_LIGHT_TURN_ON]: handleTurnOn,
 	[POSTBACK_ACTION.BEDROOM_LIGHT_TURN_OFF]: handleTurnOff,
+	[POSTBACK_ACTION.LIVING_ROOM_AC_COOL]: handleCool,
+	[POSTBACK_ACTION.LIVING_ROOM_AC_HEAT]: handleHeat,
+	[POSTBACK_ACTION.LIVING_ROOM_AC_STOP]: handleStop,
 };
 
 export async function handlePostbackEvent(event: LinePostbackEvent, env: Env): Promise<void> {

@@ -17,13 +17,13 @@ function generateHeaders(token: string, secret: string): HeadersInit {
 	};
 }
 
-async function sendCommand(token: string, secret: string, deviceId: string, command: string): Promise<void> {
+async function sendCommand(token: string, secret: string, deviceId: string, command: string, parameter = 'default'): Promise<void> {
 	try {
 		const headers = generateHeaders(token, secret);
 		const res = await fetch(`${SWITCHBOT_API_BASE}/devices/${deviceId}/commands`, {
 			method: 'POST',
 			headers,
-			body: JSON.stringify({ command, parameter: 'default', commandType: 'command' }),
+			body: JSON.stringify({ command, parameter, commandType: 'command' }),
 		});
 
 		if (!res.ok) {
@@ -40,4 +40,21 @@ export async function turnOn(token: string, secret: string, deviceId: string): P
 
 export async function turnOff(token: string, secret: string, deviceId: string): Promise<void> {
 	await sendCommand(token, secret, deviceId, 'turnOff');
+}
+
+export const AC_MODE = { AUTO: 1, COOL: 2, DRY: 3, FAN: 4, HEAT: 5 } as const;
+export const AC_FAN_SPEED = { AUTO: 1, LOW: 2, MEDIUM: 3, HIGH: 4 } as const;
+type AcMode = (typeof AC_MODE)[keyof typeof AC_MODE];
+type AcFanSpeed = (typeof AC_FAN_SPEED)[keyof typeof AC_FAN_SPEED];
+
+export async function setAirConditioner(
+	token: string,
+	secret: string,
+	deviceId: string,
+	temperature: number,
+	mode: AcMode,
+	fanSpeed: AcFanSpeed
+): Promise<void> {
+	// parameter format: {temperature},{mode},{fanSpeed},{powerState}
+	await sendCommand(token, secret, deviceId, 'setAll', `${temperature},${mode},${fanSpeed},on`);
 }
