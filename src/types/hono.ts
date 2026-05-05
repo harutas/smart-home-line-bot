@@ -1,6 +1,6 @@
-import { LineEvent } from '@/types/line';
+import { webhook } from '@line/bot-sdk';
 
 export interface HonoVariables {
 	rawBody: string;
-	events: LineEvent[];
+	events: webhook.Event[];
 }

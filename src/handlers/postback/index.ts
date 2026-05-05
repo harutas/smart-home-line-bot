@@ -1,7 +1,7 @@
 import { handleTurnOff, handleTurnOn } from '@/handlers/postback/bedroom/light';
 import { handleCool, handleHeat, handleSelectMode, handleSelectTemp, handleStart, handleStop } from '@/handlers/postback/living-room/ac';
-import type { LinePostbackEvent } from '@/types/line';
 import { POSTBACK_ACTION, type PostbackAction, type PostbackData } from '@/types/postback';
+import type { webhook } from '@line/bot-sdk';
 import { messagingApi } from '@line/bot-sdk';
 
 export type PostbackContext = {
@@ -24,7 +24,7 @@ const actionMap: Record<PostbackAction, PostbackHandler> = {
 	[POSTBACK_ACTION.LIVING_ROOM_AC_START]: handleStart,
 };
 
-export async function handlePostbackEvent(event: LinePostbackEvent, env: Env): Promise<void> {
+export async function handlePostbackEvent(event: webhook.PostbackEvent, env: Env): Promise<void> {
 	let data: PostbackData;
 	try {
 		data = JSON.parse(event.postback.data) as PostbackData;
@@ -40,7 +40,7 @@ export async function handlePostbackEvent(event: LinePostbackEvent, env: Env): P
 	}
 
 	const ctx: PostbackContext = {
-		replyToken: event.replyToken,
+		replyToken: event.replyToken!,
 		lineClient: new messagingApi.MessagingApiClient({ channelAccessToken: env.LINE_CHANNEL_ACCESS_TOKEN }),
 		env,
 		data,
