@@ -37,7 +37,13 @@
 	 */
 	"vars": {
 		"ENVIRONMENT": "production"
-	}
+	},
+	"kv_namespaces": [
+		{
+			"binding": "SMART_HOME_KV",
+			"id": "7ba7641c71104162badcdeeffde6745c"
+		}
+	]
 	/**
 	 * Secrets (set via `wrangler secret put`):
 	 * LINE_CHANNEL_SECRET
