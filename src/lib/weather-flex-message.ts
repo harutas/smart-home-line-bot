@@ -60,7 +60,7 @@ function timeSlotRow(icon: string, label: string, slot: TimeSlotForecast): messa
 export function buildWeatherFlexMessage(forecast: DailyForecast): messagingApi.FlexMessage {
 	return {
 		type: 'flex',
-		altText: `今日の天気｜最高 ${forecast.maxTemp}°C / 最低 ${forecast.minTemp}°C`,
+		altText: `今日の天気｜最高気温 ${forecast.maxTemp}°C / 最低気温 ${forecast.minTemp}°C`,
 		contents: {
 			type: 'bubble',
 			size: 'mega',
