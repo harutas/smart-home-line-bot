@@ -16,7 +16,7 @@
 	"workers_dev": true,
 	"preview_urls": false,
 	"triggers": {
-		"crons": ["0 22 * * *"] // 毎日 JST 7:00 (UTC 22:00)
+		"crons": ["30 21 * * *"] // 毎日 JST 6:30 (UTC 21:30)
 	},
 	/**
 	 * Smart Placement
