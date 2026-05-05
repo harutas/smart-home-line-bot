@@ -34,6 +34,8 @@ declare namespace NodeJS {
 				| 'ALLOWED_LINE_USER_IDS'
 				| 'SWITCHBOT_BOT_DEVICE_ID'
 				| 'SWITCHBOT_LIVING_ROOM_AC_DEVICE_ID'
+				| 'LINE_PUSH_USER_IDS'
+				| 'WEATHER_CONFIG'
 				| 'ENVIRONMENT'
 			>
 		> {}

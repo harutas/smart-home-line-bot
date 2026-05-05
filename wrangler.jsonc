@@ -15,6 +15,9 @@
 	"alias": { "@": "./src" },
 	"workers_dev": true,
 	"preview_urls": false,
+	"triggers": {
+		"crons": ["0 22 * * *"] // 毎日 JST 7:00 (UTC 22:00)
+	},
 	/**
 	 * Smart Placement
 	 * https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement
@@ -44,6 +47,8 @@
 	 * ALLOWED_LINE_USER_IDS
 	 * SWITCHBOT_BOT_DEVICE_ID
 	 * SWITCHBOT_LIVING_ROOM_AC_DEVICE_ID
+	 * LINE_PUSH_USER_IDS
+	 * WEATHER_CONFIG
 	 */
 	/**
 	 * Static Assets
