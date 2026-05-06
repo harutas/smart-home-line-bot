@@ -22,9 +22,14 @@ const POSTBACK_ACTION = {
 	LIVING_ROOM_AC_HEAT: 'LIVING_ROOM_AC_HEAT',
 	LIVING_ROOM_AC_STOP: 'LIVING_ROOM_AC_STOP',
 	LIVING_ROOM_AC_SELECT_MODE: 'LIVING_ROOM_AC_SELECT_MODE',
+	FORECAST_CHECK: 'FORECAST_CHECK',
+	FORECAST_REGISTER_LOCATION: 'FORECAST_REGISTER_LOCATION',
+	FORECAST_NOTIFY_TIME_CHANGE: 'FORECAST_NOTIFY_TIME_CHANGE',
+	FORECAST_NOTIFY_STOP: 'FORECAST_NOTIFY_STOP',
 } as const;
 
-config({ path: '.dev.vars' });
+const envFile = process.argv.includes('--prod') ? '.prod.vars' : '.dev.vars';
+config({ path: envFile });
 
 const channelAccessToken = process.env.LINE_CHANNEL_ACCESS_TOKEN ?? '';
 if (!channelAccessToken) {
@@ -36,13 +41,17 @@ const client = new messagingApi.MessagingApiClient({ channelAccessToken });
 const blobClient = new messagingApi.MessagingApiBlobClient({ channelAccessToken });
 
 const ALIAS = {
+	DEFAULT: 'richmenu-alias-default',
 	BEDROOM: 'richmenu-alias-1',
 	LIVING_ROOM: 'richmenu-alias-2',
+	FORECAST: 'richmenu-alias-3',
 } as const;
 
 const W = 2500;
 const H = 1686;
 const TOP_H = 300;
+
+const SMALL_H = 843;
 
 function b(x: number, y: number, width: number, height: number) {
 	return { x, y, width, height };
@@ -73,18 +82,75 @@ async function deleteOldMenus(oldIds: string[]): Promise<void> {
 	}
 }
 
+async function setupDefault(): Promise<string> {
+	console.log('\n--- デフォルトリッチメニュー ---');
+	const richMenuId = await createRichMenu(
+		{
+			size: { width: W, height: SMALL_H },
+			selected: false,
+			name: '天気予報',
+			chatBarText: '天気予報',
+			areas: [
+				{
+					bounds: b(0, 0, W / 2, SMALL_H / 2),
+					action: {
+						type: 'postback',
+						label: '天気を確認',
+						data: JSON.stringify({ action: POSTBACK_ACTION.FORECAST_CHECK }),
+						displayText: '天気を確認',
+					},
+				},
+				{
+					bounds: b(W / 2, 0, W / 2, SMALL_H / 2),
+					action: {
+						type: 'postback',
+						label: '通知地点の登録',
+						data: JSON.stringify({ action: POSTBACK_ACTION.FORECAST_REGISTER_LOCATION }),
+						displayText: '通知地点の登録',
+					},
+				},
+				{
+					bounds: b(0, SMALL_H / 2, W / 2, SMALL_H / 2),
+					action: {
+						type: 'postback',
+						label: '通知時間の登録',
+						data: JSON.stringify({ action: POSTBACK_ACTION.FORECAST_NOTIFY_TIME_CHANGE }),
+						displayText: '通知時間の登録',
+					},
+				},
+				{
+					bounds: b(W / 2, SMALL_H / 2, W / 2, SMALL_H / 2),
+					action: {
+						type: 'postback',
+						label: '通知の停止',
+						data: JSON.stringify({ action: POSTBACK_ACTION.FORECAST_NOTIFY_STOP }),
+						displayText: '通知の停止',
+					},
+				},
+			],
+		},
+		'richmenu-default.png'
+	);
+	console.log(`✓ 作成完了: ${richMenuId}`);
+	return richMenuId;
+}
+
 async function setupBedroom(): Promise<string> {
-	console.log('\n--- 寝室のライト ---');
+	console.log('\n--- ライト ---');
 	const richMenuId = await createRichMenu(
 		{
 			size: { width: W, height: H },
-			selected: true,
-			name: '寝室（ライト）',
-			chatBarText: '寝室（ライト）',
+			selected: false,
+			name: 'ライト',
+			chatBarText: 'ライト',
 			areas: [
 				{
-					bounds: b(W / 2, 0, W / 2, TOP_H),
+					bounds: b(833, 0, 833, TOP_H),
 					action: { type: 'richmenuswitch', richMenuAliasId: ALIAS.LIVING_ROOM, data: 'richmenu-changed-to-living-room' },
+				},
+				{
+					bounds: b(1666, 0, 834, TOP_H),
+					action: { type: 'richmenuswitch', richMenuAliasId: ALIAS.FORECAST, data: 'richmenu-changed-to-forecast' },
 				},
 				{
 					bounds: b(0, TOP_H, W / 2, H - TOP_H),
@@ -113,18 +179,22 @@ async function setupBedroom(): Promise<string> {
 }
 
 async function setupLivingRoomAc(): Promise<string> {
-	console.log('\n--- リビングのエアコン ---');
+	console.log('\n--- エアコン ---');
 	const richMenuId = await createRichMenu(
 		{
 			size: { width: W, height: H },
-			selected: true,
-			name: 'リビング（エアコン）',
-			chatBarText: 'リビング（エアコン）',
+			selected: false,
+			name: 'エアコン',
+			chatBarText: 'エアコン',
 			areas: [
 				// トップバー: エイリアス切り替え
 				{
-					bounds: b(0, 0, W / 2, TOP_H),
+					bounds: b(0, 0, 833, TOP_H),
 					action: { type: 'richmenuswitch', richMenuAliasId: ALIAS.BEDROOM, data: 'richmenu-changed-to-bedroom' },
+				},
+				{
+					bounds: b(1666, 0, 834, TOP_H),
+					action: { type: 'richmenuswitch', richMenuAliasId: ALIAS.FORECAST, data: 'richmenu-changed-to-forecast' },
 				},
 				// Row 1 (y=300, h=550): 冷房ON / 暖房ON
 				{
@@ -177,7 +247,69 @@ async function setupLivingRoomAc(): Promise<string> {
 	return richMenuId;
 }
 
-async function setupAliases(bedroomId: string, livingRoomAcId: string): Promise<void> {
+async function setupForecast(): Promise<string> {
+	console.log('\n--- 天気 ---');
+	const richMenuId = await createRichMenu(
+		{
+			size: { width: W, height: H },
+			selected: false,
+			name: '天気',
+			chatBarText: '天気',
+			areas: [
+				// トップバー: エイリアス切り替え
+				{
+					bounds: b(0, 0, 833, TOP_H),
+					action: { type: 'richmenuswitch', richMenuAliasId: ALIAS.BEDROOM, data: 'richmenu-changed-to-bedroom' },
+				},
+				{
+					bounds: b(833, 0, 833, TOP_H),
+					action: { type: 'richmenuswitch', richMenuAliasId: ALIAS.LIVING_ROOM, data: 'richmenu-changed-to-living-room' },
+				},
+				{
+					bounds: b(0, TOP_H, W, 610),
+					action: {
+						type: 'postback',
+						label: '天気を確認',
+						data: JSON.stringify({ action: POSTBACK_ACTION.FORECAST_CHECK }),
+						displayText: '天気を確認',
+					},
+				},
+				{
+					bounds: b(0, 910, W / 2, 390),
+					action: {
+						type: 'postback',
+						label: '通知地点の登録',
+						data: JSON.stringify({ action: POSTBACK_ACTION.FORECAST_REGISTER_LOCATION }),
+						displayText: '通知地点の登録',
+					},
+				},
+				{
+					bounds: b(W / 2, 910, W / 2, 390),
+					action: {
+						type: 'postback',
+						label: '通知時間の登録',
+						data: JSON.stringify({ action: POSTBACK_ACTION.FORECAST_NOTIFY_TIME_CHANGE }),
+						displayText: '通知時間の登録',
+					},
+				},
+				{
+					bounds: b(0, 1300, W, 386),
+					action: {
+						type: 'postback',
+						label: '通知の停止',
+						data: JSON.stringify({ action: POSTBACK_ACTION.FORECAST_NOTIFY_STOP }),
+						displayText: '通知の停止',
+					},
+				},
+			],
+		},
+		'richmenu-3.png'
+	);
+	console.log(`✓ 作成完了: ${richMenuId}`);
+	return richMenuId;
+}
+
+async function setupAliases(bedroomId: string, livingRoomAcId: string, forecastId: string): Promise<void> {
 	console.log('\n--- エイリアス設定 ---');
 	for (const aliasId of Object.values(ALIAS)) {
 		try {
@@ -190,19 +322,40 @@ async function setupAliases(bedroomId: string, livingRoomAcId: string): Promise<
 	console.log(`✓ ${ALIAS.BEDROOM} → ${bedroomId}`);
 	await client.createRichMenuAlias({ richMenuAliasId: ALIAS.LIVING_ROOM, richMenuId: livingRoomAcId });
 	console.log(`✓ ${ALIAS.LIVING_ROOM} → ${livingRoomAcId}`);
+	await client.createRichMenuAlias({ richMenuAliasId: ALIAS.FORECAST, richMenuId: forecastId });
+	console.log(`✓ ${ALIAS.FORECAST} → ${forecastId}`);
 }
 
 try {
 	const oldIds = await getExistingMenuIds();
 
+	// デフォルトのリッチメニューを設定
+	const defaultId = await setupDefault();
+
+	// ユーザー個別の設定
 	const bedroomId = await setupBedroom();
 	const livingRoomAcId = await setupLivingRoomAc();
+	const forecastId = await setupForecast();
 
-	await setupAliases(bedroomId, livingRoomAcId);
+	await setupAliases(bedroomId, livingRoomAcId, forecastId);
 
 	console.log('\nデフォルトリッチメニューに設定中...');
-	await client.setDefaultRichMenu(bedroomId);
-	console.log(`✓ デフォルト: 寝室のライト (${bedroomId})`);
+	await client.setDefaultRichMenu(defaultId);
+	console.log(`✓ デフォルト: 天気予報 (${defaultId})`);
+
+	// 個別ユーザー設定
+	const allowedUserIds = (process.env.ALLOWED_LINE_USER_IDS ?? '')
+		.split(',')
+		.map((id) => id.trim())
+		.filter(Boolean);
+
+	if (allowedUserIds.length > 0) {
+		console.log('\n--- 許可ユーザーにライトメニューをリンク ---');
+		for (const userId of allowedUserIds) {
+			await client.linkRichMenuIdToUser(userId, bedroomId);
+			console.log(`✓ ${userId} → ${bedroomId}`);
+		}
+	}
 
 	if (oldIds.length > 0) {
 		console.log('\n旧メニューを削除中...');

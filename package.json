@@ -8,7 +8,8 @@
 		"start": "wrangler dev",
 		"test": "vitest",
 		"cf-typegen": "wrangler types",
-		"setup-rich-menu": "tsx scripts/setup-rich-menu.mts"
+		"setup-rich-menu": "tsx scripts/setup-rich-menu.mts",
+		"setup-rich-menu:prod": "tsx scripts/setup-rich-menu.mts --prod"
 	},
 	"devDependencies": {
 		"@cloudflare/vitest-pool-workers": "^0.12.4",
