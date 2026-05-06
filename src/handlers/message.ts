@@ -2,8 +2,9 @@ import { isDevelopment } from '@/lib/env';
 import { fetchDailyForecast } from '@/lib/open-meteo';
 import { clearPendingAction, getPendingAction, getUserSettings, setUserSettings } from '@/lib/user-settings';
 import { buildWeatherFlexMessage } from '@/lib/weather-flex-message';
-import { FALLBACK_LOCATION } from '@/scheduled/weather-notification';
 import { messagingApi, webhook } from '@line/bot-sdk';
+
+const FALLBACK_LOCATION = { latitude: 35.6816858, longitude: 139.7466155 }; // 皇居
 
 export async function handleMessageEvent(event: webhook.MessageEvent, env: Env): Promise<void> {
 	const { message } = event;

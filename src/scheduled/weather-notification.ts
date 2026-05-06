@@ -3,11 +3,6 @@ import { fetchDailyForecast } from '@/lib/open-meteo';
 import { getUserSettings } from '@/lib/user-settings';
 import { buildWeatherFlexMessage } from '@/lib/weather-flex-message';
 
-export const FALLBACK_LOCATION = {
-	latitude: 35.6816858,
-	longitude: 139.7466155,
-}; // 皇居
-
 function currentJST(): { hour: number; minute: number } {
 	const parts = new Intl.DateTimeFormat('ja-JP', {
 		timeZone: 'Asia/Tokyo',
@@ -41,22 +36,24 @@ export async function runWeatherNotification(env: Env): Promise<void> {
 
 	await Promise.all(
 		userIds.map(async (userId) => {
-			const settings = await getUserSettings(env.SMART_HOME_KV, userId);
+			const { notifyLat, notifyLon, notifyHour, notifyMinute = 0 } = await getUserSettings(env.SMART_HOME_KV, userId);
 
-			// opt-in: notifyHour が明示的に設定されている場合のみ通知（null = 停止, undefined = 未設定）
-			if (settings.notifyHour == null) {
+			// 通知時間が登録されていなければ通知しない（null = 停止, undefined = 未設定）
+			if (notifyHour == null) {
 				return;
 			}
 
-			const targetMinute = settings.notifyMinute ?? 0;
-			if (hour !== settings.notifyHour || minute !== targetMinute) {
+			// 指定時間でなければ通知しない
+			if (hour !== notifyHour || minute !== notifyMinute) {
 				return;
 			}
 
-			const lat = settings.notifyLat ?? FALLBACK_LOCATION.latitude;
-			const lon = settings.notifyLon ?? FALLBACK_LOCATION.longitude;
+			// 位置情報が登録されていなければ通知しない
+			if (notifyLat == null || notifyLon == null) {
+				return;
+			}
 
-			const forecast = await fetchDailyForecast(lat, lon);
+			const forecast = await fetchDailyForecast(notifyLat, notifyLon);
 			await pushMessage(env, userId, buildWeatherFlexMessage(forecast));
 		})
 	);
