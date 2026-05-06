@@ -16,7 +16,7 @@
 	"workers_dev": true,
 	"preview_urls": false,
 	"triggers": {
-		"crons": ["30 21 * * *"] // 毎日 JST 6:30 (UTC 21:30)
+		"crons": ["0,30 20-23 * * *", "0,30 0 * * *", "0 1 * * *"]
 	},
 	/**
 	 * Smart Placement
@@ -53,8 +53,6 @@
 	 * ALLOWED_LINE_USER_IDS
 	 * SWITCHBOT_BOT_DEVICE_ID
 	 * SWITCHBOT_LIVING_ROOM_AC_DEVICE_ID
-	 * LINE_PUSH_USER_IDS
-	 * WEATHER_CONFIG
 	 */
 	/**
 	 * Static Assets
